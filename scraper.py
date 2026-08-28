@@ -1,6 +1,7 @@
 import csv
 from datetime import datetime
 import os
+import sys
 import requests
 
 API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
@@ -51,6 +52,7 @@ def log_parking_data():
 
   except Exception as e:
     print(f"[{timestamp}] Error logging data: {e}")
+    sys.exit(1)  # Force GitHub Actions to register the failure and show logs
 
 
 if __name__ == "__main__":
