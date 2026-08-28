@@ -2,9 +2,12 @@ name: Hourly Parking Availability Logger
 
 on:
   schedule:
-    # Runs automatically at minute 0 of every hour
     - cron: '0 * * * *'
-  workflow_dispatch: # Enables manual triggering from GitHub UI
+  workflow_dispatch:
+
+# Grants explicit write permissions to save the CSV back to the repository
+permissions:
+  contents: write
 
 jobs:
   run-scraper:
