@@ -2,12 +2,12 @@ import csv
 from datetime import datetime
 import os
 import sys
+from zoneinfo import ZoneInfo
 from curl_cffi import requests
 
 API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
 CSV_FILE = "parking_data.csv"
 
-# Browser-identical headers including Referer and Accept flags
 HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
@@ -21,11 +21,12 @@ HEADERS = {
 
 
 def log_parking_data():
-  timestamp = datetime.now().isoformat()
+  # Captures local East Lansing time in standard ISO 8601 format
+  timestamp = datetime.now(ZoneInfo("America/Detroit")).isoformat()
+
   file_exists = os.path.exists(CSV_FILE)
 
   try:
-    # impersonate="chrome" sends Chrome TLS fingerprints to bypass bot blocks
     response = requests.get(
         API_URL, headers=HEADERS, impersonate="chrome", timeout=15
     )
@@ -61,6 +62,10 @@ def log_parking_data():
   except Exception as e:
     print(f"[{timestamp}] Error logging data: {e}")
     sys.exit(1)
+
+
+if __name__ == "__main__":
+  log_parking_data()    sys.exit(1)
 
 
 if __name__ == "__main__":
