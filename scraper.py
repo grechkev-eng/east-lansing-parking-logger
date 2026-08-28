@@ -21,8 +21,10 @@ HEADERS = {
 
 
 def log_parking_data():
-  # Local East Lansing timestamp in ISO 8601 format
-  timestamp = datetime.now(ZoneInfo("America/Detroit")).isoformat()
+  # Local East Lansing timestamp cleanly formatted as YYYY-MM-DD HH:MM:SS
+  eastern_tz = ZoneInfo("America/Detroit")
+  timestamp = datetime.now(eastern_tz).strftime("%Y-%m-%d %H:%M:%S")
+
   file_exists = os.path.exists(CSV_FILE)
 
   try:
