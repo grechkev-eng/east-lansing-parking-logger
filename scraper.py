@@ -21,9 +21,8 @@ HEADERS = {
 
 
 def log_parking_data():
-  # Captures local East Lansing time in standard ISO 8601 format
+  # Local East Lansing timestamp in ISO 8601 format
   timestamp = datetime.now(ZoneInfo("America/Detroit")).isoformat()
-
   file_exists = os.path.exists(CSV_FILE)
 
   try:
@@ -62,10 +61,6 @@ def log_parking_data():
   except Exception as e:
     print(f"[{timestamp}] Error logging data: {e}")
     sys.exit(1)
-
-
-if __name__ == "__main__":
-  log_parking_data()    sys.exit(1)
 
 
 if __name__ == "__main__":
