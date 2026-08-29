@@ -3,9 +3,10 @@ from datetime import datetime
 import os
 import sys
 from zoneinfo import ZoneInfo
-import requests
+from playwright.sync_api import sync_playwright
 
-APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_KvFLxrX07eWeIne7TliC4NQi_g9fdCt-XLN2c76B3VrtADqGw3s2ed-PVp1Yr8AU/exec"
+API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
+PAGE_URL = "https://cityofeastlansing.com/2186/Live-Parking-Availability"
 CSV_FILE = "parking_data.csv"
 
 
@@ -15,17 +16,33 @@ def log_parking_data():
   file_exists = os.path.exists(CSV_FILE)
 
   try:
-    # requests.get follows Google Apps Script's 302 redirects automatically
-    response = requests.get(APPS_SCRIPT_URL, timeout=30)
-    response.raise_for_status()
+    with sync_playwright() as p:
+      # Launch headless Chromium browser
+      browser = p.chromium.launch(headless=True)
+      context = browser.new_context(
+          user_agent=(
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
+              " (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+          )
+      )
+      page = context.new_page()
 
-    # Verify response is valid JSON
-    try:
-      garages = response.json()
-    except Exception:
-      print(f"[{timestamp}] Failed to parse JSON response. Raw output:")
-      print(response.text[:500])
-      sys.exit(1)
+      # Visit the main municipal page to clear Cloudflare checks
+      page.goto(PAGE_URL, wait_until="domcontentloaded", timeout=30000)
+      page.wait_for_timeout(3000)
+
+      # Fetch the parking JSON inside the authenticated browser context
+      garages = page.evaluate(f"""
+                async () => {{
+                    const response = await fetch('{API_URL}');
+                    return await response.json();
+                }}
+            """)
+
+      browser.close()
+
+    if not isinstance(garages, list):
+      raise ValueError(f"Unexpected response format: {type(garages)}")
 
     data_rows = []
     for garage in garages:
