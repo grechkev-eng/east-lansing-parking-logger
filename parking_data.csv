@@ -131,3 +131,9 @@ timestamp,facility_id,facility_name,available_spaces,total_capacity,is_active
 2026-08-29 05:33:17,000,Division Garage,156,615,True
 2026-08-29 05:33:17,002,Grove Garage,63,404,True
 2026-08-29 05:33:17,003,Mac Ave Garage,83,243,True
+2026-08-29 06:33:26,004,Albert Avenue Garage,48,305,True
+2026-08-29 06:33:26,005,Bailey Lot,73,121,True
+2026-08-29 06:33:26,001,Charles Garage,190,683,True
+2026-08-29 06:33:26,000,Division Garage,157,615,True
+2026-08-29 06:33:26,002,Grove Garage,63,404,True
+2026-08-29 06:33:26,003,Mac Ave Garage,83,243,True
