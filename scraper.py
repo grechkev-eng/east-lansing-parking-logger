@@ -1,5 +1,6 @@
 import csv
 from datetime import datetime
+import json
 import os
 import sys
 from zoneinfo import ZoneInfo
@@ -17,29 +18,27 @@ def log_parking_data():
 
   try:
     with sync_playwright() as p:
-      # Launch headless Chromium browser
       browser = p.chromium.launch(headless=True)
       context = browser.new_context(
           user_agent=(
               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
               " (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
-          )
+          ),
+          extra_http_headers={"Referer": PAGE_URL},
       )
       page = context.new_page()
 
-      # Visit the main municipal page to clear Cloudflare checks
-      page.goto(PAGE_URL, wait_until="domcontentloaded", timeout=30000)
+      # Navigate directly to the API URL (top-level navigation bypasses CORS)
+      page.goto(API_URL, wait_until="networkidle", timeout=30000)
+
+      # Pause briefly for any Cloudflare challenge redirection to settle
       page.wait_for_timeout(3000)
 
-      # Fetch the parking JSON inside the authenticated browser context
-      garages = page.evaluate(f"""
-                async () => {{
-                    const response = await fetch('{API_URL}');
-                    return await response.json();
-                }}
-            """)
-
+      # Extract the raw JSON text from the browser body
+      body_text = page.locator("body").inner_text()
       browser.close()
+
+    garages = json.loads(body_text)
 
     if not isinstance(garages, list):
       raise ValueError(f"Unexpected response format: {type(garages)}")
