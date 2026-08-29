@@ -8,7 +8,6 @@ from curl_cffi import requests
 API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
 CSV_FILE = "parking_data.csv"
 
-# Cleaned headers to avoid TLS/Header signature mismatches
 HEADERS = {
     "Accept": "application/json, text/javascript, */*; q=0.01",
     "Accept-Language": "en-US,en;q=0.9",
@@ -26,10 +25,15 @@ def log_parking_data():
   file_exists = os.path.exists(CSV_FILE)
 
   try:
-    # Uses chrome120 fingerprinting to pass cloud WAF checks
     response = requests.get(
         API_URL, headers=HEADERS, impersonate="chrome120", timeout=20
     )
+
+    # --- Debug Outputs ---
+    print(f"[{timestamp}] DEBUG Status Code: {response.status_code}")
+    print(f"[{timestamp}] DEBUG Response Body:\n{response.text[:1000]}")
+    # ---------------------
+
     response.raise_for_status()
     garages = response.json()
 
