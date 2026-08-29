@@ -8,28 +8,27 @@ from curl_cffi import requests
 API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
 CSV_FILE = "parking_data.csv"
 
+# Cleaned headers to avoid TLS/Header signature mismatches
 HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,"
-        " like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    ),
     "Accept": "application/json, text/javascript, */*; q=0.01",
     "Accept-Language": "en-US,en;q=0.9",
     "Referer": "https://cityofeastlansing.com/2186/Live-Parking-Availability",
     "Origin": "https://cityofeastlansing.com",
+    "Sec-Fetch-Dest": "empty",
+    "Sec-Fetch-Mode": "cors",
+    "Sec-Fetch-Site": "cross-site",
 }
 
 
 def log_parking_data():
-  # Local East Lansing timestamp cleanly formatted as YYYY-MM-DD HH:MM:SS
   eastern_tz = ZoneInfo("America/Detroit")
   timestamp = datetime.now(eastern_tz).strftime("%Y-%m-%d %H:%M:%S")
-
   file_exists = os.path.exists(CSV_FILE)
 
   try:
+    # Uses chrome120 fingerprinting to pass cloud WAF checks
     response = requests.get(
-        API_URL, headers=HEADERS, impersonate="chrome", timeout=15
+        API_URL, headers=HEADERS, impersonate="chrome120", timeout=20
     )
     response.raise_for_status()
     garages = response.json()
