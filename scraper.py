@@ -5,7 +5,7 @@ import sys
 from zoneinfo import ZoneInfo
 import requests
 
-API_URL = "https://cms.revize.com/revize/apps/eastlansingparking/"
+WORKER_URL = "https://parking-proxy.grechkev.workers.dev/"
 CSV_FILE = "parking_data.csv"
 
 
@@ -14,28 +14,8 @@ def log_parking_data():
   timestamp = datetime.now(eastern_tz).strftime("%Y-%m-%d %H:%M:%S")
   file_exists = os.path.exists(CSV_FILE)
 
-  # Check if ScraperAPI key exists in environment variables
-  scraper_key = os.getenv("SCRAPER_API_KEY")
-
-  if scraper_key:
-    # Route through ScraperAPI to bypass Cloudflare IP blocks
-    target_url = "http://api.scraperapi.com"
-    params = {
-        "api_key": scraper_key,
-        "url": API_URL,
-    }
-    response = requests.get(target_url, params=params, timeout=30)
-  else:
-    # Fallback for local testing without ScraperAPI
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
-            " (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        )
-    }
-    response = requests.get(API_URL, headers=headers, timeout=20)
-
   try:
+    response = requests.get(WORKER_URL, timeout=20)
     response.raise_for_status()
     garages = response.json()
 
@@ -67,7 +47,6 @@ def log_parking_data():
 
   except Exception as e:
     print(f"[{timestamp}] Error logging data: {e}")
-    print(f"Response Body: {response.text[:500]}")
     sys.exit(1)
 
 
