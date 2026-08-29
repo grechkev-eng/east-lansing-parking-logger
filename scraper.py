@@ -17,7 +17,14 @@ def log_parking_data():
   try:
     response = requests.get(WORKER_URL, timeout=20)
     response.raise_for_status()
-    garages = response.json()
+
+    # Verify JSON structure before parsing
+    try:
+      garages = response.json()
+    except Exception:
+      print(f"[{timestamp}] Failed to parse JSON. Raw body:")
+      print(response.text[:500])
+      sys.exit(1)
 
     data_rows = []
     for garage in garages:
