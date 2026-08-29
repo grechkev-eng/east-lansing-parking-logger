@@ -5,7 +5,7 @@ import sys
 from zoneinfo import ZoneInfo
 import requests
 
-WORKER_URL = "https://parking-proxy.grechkev.workers.dev/"
+APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_KvFLxrX07eWeIne7TliC4NQi_g9fdCt-XLN2c76B3VrtADqGw3s2ed-PVp1Yr8AU/exec"
 CSV_FILE = "parking_data.csv"
 
 
@@ -15,14 +15,15 @@ def log_parking_data():
   file_exists = os.path.exists(CSV_FILE)
 
   try:
-    response = requests.get(WORKER_URL, timeout=20)
+    # requests.get follows Google Apps Script's 302 redirects automatically
+    response = requests.get(APPS_SCRIPT_URL, timeout=30)
     response.raise_for_status()
 
-    # Verify JSON structure before parsing
+    # Verify response is valid JSON
     try:
       garages = response.json()
     except Exception:
-      print(f"[{timestamp}] Failed to parse JSON. Raw body:")
+      print(f"[{timestamp}] Failed to parse JSON response. Raw output:")
       print(response.text[:500])
       sys.exit(1)
 
